@@ -8,21 +8,20 @@ import (
 	"Spark/utils"
 	"Spark/utils/melody"
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"net/http"
 	"net/url"
 	"path"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/gin-gonic/gin"
 )
 
 // RemoveDeviceFiles will try to get send a packet to
 // client and let it upload the file specified.
 func RemoveDeviceFiles(ctx *gin.Context) {
-	var form struct {
-		Files []string `json:"files" yaml:"files" form:"files" binding:"required"`
-	}
+	var form removeDeviceFile
 	target, ok := utility.CheckForm(ctx, &form)
 	if !ok {
 		return
@@ -56,9 +55,7 @@ func RemoveDeviceFiles(ctx *gin.Context) {
 
 // ListDeviceFiles will list files on remote client
 func ListDeviceFiles(ctx *gin.Context) {
-	var form struct {
-		Path string `json:"path" yaml:"path" form:"path" binding:"required"`
-	}
+	var form listDeviceFile
 	target, ok := utility.CheckForm(ctx, &form)
 	if !ok {
 		return
@@ -80,10 +77,7 @@ func ListDeviceFiles(ctx *gin.Context) {
 // GetDeviceFiles will try to get send a packet to
 // client and let it upload the file specified.
 func GetDeviceFiles(ctx *gin.Context) {
-	var form struct {
-		Files   []string `json:"files" yaml:"files" form:"files" binding:"required"`
-		Preview bool     `json:"preview" yaml:"preview" form:"preview"`
-	}
+	var form getDeviceFile
 	target, ok := utility.CheckForm(ctx, &form)
 	if !ok {
 		return
@@ -220,9 +214,7 @@ func GetDeviceFiles(ctx *gin.Context) {
 // GetDeviceTextFile will try to get send a packet to
 // client and let it upload the text file.
 func GetDeviceTextFile(ctx *gin.Context) {
-	var form struct {
-		File string `json:"file" yaml:"file" form:"file" binding:"required"`
-	}
+	var form deviceTextFile
 	target, ok := utility.CheckForm(ctx, &form)
 	if !ok {
 		return
@@ -297,10 +289,7 @@ func GetDeviceTextFile(ctx *gin.Context) {
 // UploadToDevice handles file from browser
 // and transfer it to device.
 func UploadToDevice(ctx *gin.Context) {
-	var form struct {
-		Path string `json:"path" yaml:"path" form:"path" binding:"required"`
-		File string `json:"file" yaml:"file" form:"file" binding:"required"`
-	}
+	var form uploadToDevice
 	target, ok := utility.CheckForm(ctx, &form)
 	if !ok {
 		return

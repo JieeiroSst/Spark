@@ -6,9 +6,10 @@ import (
 	"Spark/server/handler/utility"
 	"Spark/utils"
 	"Spark/utils/melody"
-	"github.com/gin-gonic/gin"
 	"net/http"
 	"time"
+
+	"github.com/gin-gonic/gin"
 )
 
 // ListDeviceProcesses will list processes on remote client
@@ -34,9 +35,7 @@ func ListDeviceProcesses(ctx *gin.Context) {
 // KillDeviceProcess will try to get send a packet to
 // client and let it kill the process specified.
 func KillDeviceProcess(ctx *gin.Context) {
-	var form struct {
-		Pid int32 `json:"pid" yaml:"pid" form:"pid" binding:"required"`
-	}
+	var form killDeviceProcess
 	target, ok := utility.CheckForm(ctx, &form)
 	if !ok {
 		return

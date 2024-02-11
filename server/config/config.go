@@ -2,10 +2,6 @@ package config
 
 import (
 	"bytes"
-	"fmt"
-	"os"
-
-	"github.com/ghodss/yaml"
 )
 
 type Config struct {
@@ -25,51 +21,18 @@ type Log struct {
 var COMMIT = ``
 var BuiltPath = `./built/%v_%v`
 
-func ReadConfYAML(filename string) (*Config, error) {
-	buffer, err := os.ReadFile(filename)
-	if err != nil {
-		return nil, err
-	}
-
-	config := &Config{}
-	err = yaml.Unmarshal(buffer, &config)
-	if err != nil {
-		fmt.Printf("err: %v\n", err)
-
-	}
-	return config, nil
-}
-
-func ReadConfJSON(filename string) (*Config, error) {
-	buffer, err := os.ReadFile(filename)
-	if err != nil {
-		return nil, err
-	}
-
-	config := &Config{}
-	err = yaml.Unmarshal(buffer, &config)
-	if err != nil {
-		fmt.Printf("err: %v\n", err)
-
-	}
-	return config, nil
-}
-
 func ReadConfigFile(file string) *Config {
-	config, err := ReadConfYAML(file)
-	if err != nil {
-		return nil
-	}
-	if config.Log == nil {
-		config.Log = &Log{
-			Level: `info`,
-			Path:  `./logs`,
+	config := &Config{
+		Listen: ":8001",
+		Salt:   "123456abcdef",
+		Auth: map[string]string{
+			"username": "password",
+		},
+		Log: &Log{
+			Level: "info",
+			Path:  "./logs",
 			Days:  7,
-		}
-	}
-
-	if len(config.Salt) > 24 {
-		return nil
+		},
 	}
 	config.SaltBytes = []byte(config.Salt)
 	config.SaltBytes = append(config.SaltBytes, bytes.Repeat([]byte{25}, 24)...)
