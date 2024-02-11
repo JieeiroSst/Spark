@@ -11,14 +11,6 @@ import (
 	"net/http"
 )
 
-type desktop struct {
-	uuid       string
-	device     string
-	srcConn    *melody.Session
-	deviceConn *melody.Session
-}
-
-var desktopSessions = melody.New()
 
 func init() {
 	desktopSessions.Config.MaxMessageSize = common.MaxMessageSize

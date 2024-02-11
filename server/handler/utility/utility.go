@@ -9,12 +9,13 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"net/http"
 	"os"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/gin-gonic/gin"
 )
 
 type Sender func(pack modules.Packet, session *melody.Session) bool
@@ -22,10 +23,7 @@ type Sender func(pack modules.Packet, session *melody.Session) bool
 // CheckForm checks if the form contains the required fields.
 // Every request must contain connection UUID or device ID.
 func CheckForm(ctx *gin.Context, form any) (string, bool) {
-	var base struct {
-		Conn   string `json:"uuid" yaml:"uuid" form:"uuid"`
-		Device string `json:"device" yaml:"device" form:"device"`
-	}
+	var base checkForm
 	if form != nil && ctx.ShouldBind(form) != nil {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, modules.Packet{Code: -1, Msg: `${i18n|COMMON.INVALID_PARAMETER}`})
 		return ``, false
@@ -46,12 +44,7 @@ func CheckForm(ctx *gin.Context, form any) (string, bool) {
 // OnDevicePack handles events about device info.
 // Such as websocket handshake and update device info.
 func OnDevicePack(data []byte, session *melody.Session) error {
-	var pack struct {
-		Code   int            `json:"code,omitempty"`
-		Act    string         `json:"act,omitempty"`
-		Msg    string         `json:"msg,omitempty"`
-		Device modules.Device `json:"data"`
-	}
+	var pack onDevicePack
 	err := utils.JSON.Unmarshal(data, &pack)
 	if err != nil {
 		session.Close()
@@ -108,11 +101,7 @@ func OnDevicePack(data []byte, session *melody.Session) error {
 
 // CheckUpdate will check if client need update and return latest client if so.
 func CheckUpdate(ctx *gin.Context) {
-	var form struct {
-		OS     string `form:"os" binding:"required"`
-		Arch   string `form:"arch" binding:"required"`
-		Commit string `form:"commit" binding:"required"`
-	}
+	var form checkUpdate
 	if err := ctx.ShouldBind(&form); err != nil {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, modules.Packet{Code: -1, Msg: `${i18n|COMMON.INVALID_PARAMETER}`})
 		return
@@ -225,10 +214,7 @@ func CheckUpdate(ctx *gin.Context) {
 
 // ExecDeviceCmd execute command on device.
 func ExecDeviceCmd(ctx *gin.Context) {
-	var form struct {
-		Cmd  string `json:"cmd" yaml:"cmd" form:"cmd" binding:"required"`
-		Args string `json:"args" yaml:"args" form:"args"`
-	}
+	var form execDeviceCmd
 	target, ok := CheckForm(ctx, &form)
 	if !ok {
 		return

@@ -3,32 +3,14 @@ package bridge
 import (
 	"Spark/modules"
 	"Spark/utils"
-	"Spark/utils/cmap"
-	"github.com/gin-gonic/gin"
 	"io"
 	"net"
 	"net/http"
 	"sync"
 	"time"
+
+	"github.com/gin-gonic/gin"
 )
-
-// Bridge is a utility that handles the binary flow from the client
-// to the browser or flow from the browser to the client.
-
-type Bridge struct {
-	creation int64
-	using    bool
-	uuid     string
-	lock     *sync.Mutex
-	Dst      *gin.Context
-	Src      *gin.Context
-	ext      any
-	OnPull   func(bridge *Bridge)
-	OnPush   func(bridge *Bridge)
-	OnFinish func(bridge *Bridge)
-}
-
-var bridges = cmap.New[*Bridge]()
 
 func init() {
 	go func() {
