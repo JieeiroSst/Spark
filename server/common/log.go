@@ -5,37 +5,38 @@ import (
 	"Spark/utils"
 	"Spark/utils/melody"
 	"fmt"
-	"github.com/gin-gonic/gin"
-	"github.com/kataras/golog"
 	"io"
 	"os"
 	"time"
+
+	"github.com/gin-gonic/gin"
+	"github.com/kataras/golog"
 )
 
 var logWriter *os.File
 var disposed bool
 
-func init() {
+func NewLogger(config *config.Config) {
 	setLogDst := func() {
 		var err error
 		if logWriter != nil {
 			logWriter.Close()
 		}
-		if config.Config.Log.Level == `disable` || disposed {
+		if config.Log.Level == `disable` || disposed {
 			golog.SetOutput(os.Stdout)
 			return
 		}
-		os.Mkdir(config.Config.Log.Path, 0666)
+		os.Mkdir(config.Log.Path, 0666)
 		now := utils.Now.Add(time.Minute)
-		logFile := fmt.Sprintf(`%s/%s.log`, config.Config.Log.Path, now.Format(`2006-01-02`))
+		logFile := fmt.Sprintf(`%s/%s.log`, config.Log.Path, now.Format(`2006-01-02`))
 		logWriter, err = os.OpenFile(logFile, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0666)
 		if err != nil {
 			golog.Warn(getLog(nil, `LOG_INIT`, `fail`, err.Error(), nil))
 		}
 		golog.SetOutput(io.MultiWriter(os.Stdout, logWriter))
 
-		staleDate := time.Unix(now.Unix()-int64(config.Config.Log.Days*86400), 0)
-		staleLog := fmt.Sprintf(`%s/%s.log`, config.Config.Log.Path, staleDate.Format(`2006-01-02`))
+		staleDate := time.Unix(now.Unix()-int64(config.Log.Days*86400), 0)
+		staleLog := fmt.Sprintf(`%s/%s.log`, config.Log.Path, staleDate.Format(`2006-01-02`))
 		os.Remove(staleLog)
 	}
 	setLogDst()

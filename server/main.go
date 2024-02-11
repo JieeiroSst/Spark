@@ -14,7 +14,6 @@ import (
 	"context"
 	"encoding/hex"
 	"fmt"
-	"github.com/rakyll/statik/fs"
 	"io"
 	"net"
 	"os"
@@ -23,6 +22,8 @@ import (
 	"strings"
 	"syscall"
 	"time"
+
+	"github.com/rakyll/statik/fs"
 
 	_ "Spark/server/embed/web"
 	"Spark/utils"
@@ -36,6 +37,7 @@ var blocked = cmap.New[int64]()
 var lastRequest = time.Now().Unix()
 
 func main() {
+	config := config.ReadConfigFile("config.yaml")
 	webFS, err := fs.NewWithNamespace(`web`)
 	if err != nil {
 		common.Fatal(nil, `LOAD_STATIC_RES`, `fail`, err.Error(), nil)
@@ -63,7 +65,7 @@ func main() {
 	go wsHealthCheck(common.Melody)
 
 	srv := &http.Server{
-		Addr:    config.Config.Listen,
+		Addr:    config.Listen,
 		Handler: app,
 		ConnContext: func(ctx context.Context, c net.Conn) context.Context {
 			ctx = context.WithValue(ctx, `Conn`, c)
@@ -79,7 +81,7 @@ func main() {
 			common.Fatal(nil, `SERVICE_INIT`, `fail`, err.Error(), nil)
 		} else {
 			common.Info(nil, `SERVICE_INIT`, ``, ``, map[string]any{
-				`listen`: config.Config.Listen,
+				`listen`: config.Listen,
 			})
 		}
 	}
@@ -122,13 +124,15 @@ func wsHandshake(ctx *gin.Context) {
 		return
 	}
 
+	config := config.ReadConfigFile("config.yaml")
+
 	clientUUID, _ := hex.DecodeString(ctx.GetHeader(`UUID`))
 	clientKey, _ := hex.DecodeString(ctx.GetHeader(`Key`))
 	if len(clientUUID) != 16 || len(clientKey) != 32 {
 		ctx.AbortWithStatus(http.StatusUnauthorized)
 		return
 	}
-	decrypted, err := common.DecAES(clientKey, config.Config.SaltBytes)
+	decrypted, err := common.DecAES(clientKey, config.SaltBytes)
 	if err != nil || !bytes.Equal(decrypted, clientUUID) {
 		ctx.AbortWithStatus(http.StatusUnauthorized)
 		return
@@ -320,15 +324,16 @@ func checkAuth() gin.HandlerFunc {
 			blocked.Remove(queue...)
 		}
 	}()
+	config := config.ReadConfigFile("config.yaml")
 
-	if config.Config.Auth == nil || len(config.Config.Auth) == 0 {
+	if config.Auth == nil || len(config.Auth) == 0 {
 		return func(ctx *gin.Context) {
 			lastRequest = utils.Unix
 			ctx.Next()
 		}
 	}
 
-	auth := auth.BasicAuth(config.Config.Auth, ``)
+	auth := auth.BasicAuth(config.Auth, ``)
 	return func(ctx *gin.Context) {
 		now := utils.Unix
 		passed := false

@@ -5,6 +5,7 @@ go 1.18
 require (
 	github.com/creack/pty v1.1.18
 	github.com/denisbrodbeck/machineid v1.0.1
+	github.com/ghodss/yaml v1.0.0
 	github.com/gin-gonic/gin v1.7.7
 	github.com/gorilla/websocket v1.5.0
 	github.com/imroc/req/v3 v3.8.2

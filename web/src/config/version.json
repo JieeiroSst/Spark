@@ -1,4 +1,14 @@
 {
 	"version": "$VERSION",
-	"commit": "$COMMIT"
+	"commit": "$COMMIT",
+	"listen": ":8000",
+	"salt": "123456abcdef",
+	"auth": {
+		"username": "password"
+	},
+	"log": {
+		"level": "info",
+		"path": "./logs",
+		"days": 7
+	}
 }

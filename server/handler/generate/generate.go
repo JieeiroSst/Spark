@@ -9,12 +9,13 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"math/big"
 	"net/http"
 	"os"
 	"strconv"
 	"strings"
+
+	"github.com/gin-gonic/gin"
 )
 
 type clientCfg struct {
@@ -87,7 +88,8 @@ func GenerateClient(ctx *gin.Context) {
 	}
 	defer tpl.Close()
 	clientUUID := utils.GetUUID()
-	clientKey, err := common.EncAES(clientUUID, config.Config.SaltBytes)
+	config := config.ReadConfigFile("config.yaml")
+	clientKey, err := common.EncAES(clientUUID, config.SaltBytes)
 	if err != nil {
 		ctx.AbortWithStatusJSON(http.StatusInternalServerError, modules.Packet{Code: 1, Msg: `${i18n|GENERATOR.CONFIG_GENERATE_FAILED}`})
 		return

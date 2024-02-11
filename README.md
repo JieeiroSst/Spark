@@ -175,7 +175,7 @@ $ npm run build-prod
 
 # Embed all static resources into one single file by using statik.
 $ cd ..
-$ go install github.com/rakyll/statik
+$ go install github.com/rakyll/statik || brew install go-statik
 $ statik -m -src="./web/dist" -f -dest="./server/embed" -p web -ns web
 
 
@@ -184,11 +184,13 @@ $ statik -m -src="./web/dist" -f -dest="./server/embed" -p web -ns web
 $ mkdir ./built
 $ go mod tidy
 $ go mod download
+$ chmod +x ./scripts/build.client.sh
 $ ./scripts/build.client.sh
 
 
 # Finally we're compiling the server side.
 $ mkdir ./releases
+$ chmod +x ./scripts/build.server.sh
 $ ./scripts/build.server.sh
 ```
 
